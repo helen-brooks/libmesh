@@ -56,9 +56,9 @@ extern "C" {
 // Set the length of exodus names
 #ifdef LIBMESH_HAVE_EX_LONG_NAMES
 #define LIBMESH_NAME_LENGTH 50
-#elif
-#define LIBMESH_NAME_LENGTH MAX_STR_LENGTH
 #else
+#define LIBMESH_NAME_LENGTH MAX_STR_LENGTH
+#endif
 
 // Anonymous namespace for file local data and helper functions
 namespace
