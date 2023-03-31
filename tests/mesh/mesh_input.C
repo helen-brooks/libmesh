@@ -106,6 +106,7 @@ public:
 #if LIBMESH_DIM > 2
   CPPUNIT_TEST( testExodusIGASidesets );
   CPPUNIT_TEST( testLowOrderEdgeBlocks );
+  CPPUNIT_TEST( testExodusLongNames );
 #endif
 #ifndef LIBMESH_USE_COMPLEX_NUMBERS
   CPPUNIT_TEST( testExodusCopyElementVectorDistributed );
@@ -234,6 +235,22 @@ public:
       CPPUNIT_ASSERT_EQUAL(header_info.num_edge_blk, 0);
       CPPUNIT_ASSERT_EQUAL(header_info.num_edge, 0);
     }
+  }
+
+  void testExodusLongNames ()
+  {
+    LOG_UNIT_TEST;
+
+    Mesh mesh(*TestCommWorld);
+    ExodusII_IO exii(mesh);
+
+    if (mesh.processor_id() == 0)
+      exii.read("meshes/long_name_mesh.e");
+
+    subdomain_id_type id = 1;
+    std::string long_name_candidate = mesh.subdomain_name(id);
+    std::string long_name_known="very_long_block_name_having_exactly_50_characters_";
+    CPPUNIT_ASSERT_EQUAL(long_name_candidate,long_name_known);
   }
 
   void testLowOrderEdgeBlocks ()

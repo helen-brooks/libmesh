@@ -55912,6 +55912,10 @@ else
   LIBMESH_ENABLE_EXODUS_V811_FALSE=
 fi
 
+  # Check whether --enable-exodus-long-names was given.
+if test "${enable-exodus-long-names+set}" = set; then :
+  $as_echo "#define LIBMESH_HAVE_EX_LONG_NAMES 1" >>confdefs.h
+fi
 
 # -------------------------------------------------------------
 # Nemesis -- enabled by default (it is distributed in contrib)

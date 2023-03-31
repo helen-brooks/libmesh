@@ -53,6 +53,13 @@ extern "C" {
 #include <cstdlib> // std::strtol
 #include <unordered_map>
 
+// Set the length of exodus names
+#ifdef LIBMESH_HAVE_EX_LONG_NAMES
+#define LIBMESH_NAME_LENGTH 50
+#elif
+#define LIBMESH_NAME_LENGTH MAX_STR_LENGTH
+#else
+
 // Anonymous namespace for file local data and helper functions
 namespace
 {
@@ -818,7 +825,7 @@ void ExodusII_IO_Helper::open(const char * filename, bool read_only)
                         &ex_version);
 
   std::string err_msg = std::string("Error opening ExodusII mesh file: ") + std::string(filename);
-  EX_CHECK_ERR(ex_id, err_msg);
+  //EX_CHECK_ERR(ex_id, err_msg);
   if (verbose) libMesh::out << "File opened successfully." << std::endl;
 
   if (read_only)
@@ -827,7 +834,11 @@ void ExodusII_IO_Helper::open(const char * filename, bool read_only)
     opened_for_writing = true;
 
   current_filename = std::string(filename);
-}
+
+  int err_flag = exII::ex_set_option(ex_id, exII::EX_OPT_MAX_NAME_LENGTH, LIBMESH_NAME_LENGTH);
+  err_msg="Error setting MAX NAME LENGTH";
+  EX_CHECK_ERR(err_flag, err_msg);
+ }
 
 
 
@@ -898,6 +909,7 @@ void ExodusII_IO_Helper::read_and_store_header_info()
 
 void ExodusII_IO_Helper::read_qa_records()
 {
+
   // The QA records are four MAX_STR_LENGTH-byte character strings.
   int num_qa_rec =
     inquire(*this, exII::EX_INQ_QA, "Error retrieving number of QA records");
@@ -917,7 +929,7 @@ void ExodusII_IO_Helper::read_qa_records()
 
       for (int i=0; i<num_qa_rec; i++)
         for (int j=0; j<4; j++)
-          qa_record[i][j] = new char[MAX_STR_LENGTH+1];
+          qa_record[i][j] = new char[LIBMESH_NAME_LENGTH+1];
 
       ex_err = exII::ex_get_qa (ex_id, qa_record);
       EX_CHECK_ERR(ex_err, "Error reading the QA records.");
@@ -990,7 +1002,7 @@ void ExodusII_IO_Helper::read_nodes()
   if (n_nodal_attr > 0)
     {
       std::vector<std::vector<char>> attr_name_data
-        (n_nodal_attr, std::vector<char>(MAX_STR_LENGTH + 1));
+        (n_nodal_attr, std::vector<char>(LIBMESH_NAME_LENGTH + 1));
       std::vector<char *> attr_names(n_nodal_attr);
       for (auto i : index_range(attr_names))
         attr_names[i] = attr_name_data[i].data();
@@ -1051,7 +1063,7 @@ void ExodusII_IO_Helper::read_bex_cv_blocks()
       std::vector<std::vector<char>> blob_names(n_blobs);
       for (auto i : make_range(n_blobs))
         {
-          blob_names[i].resize(MAX_STR_LENGTH+1);
+          blob_names[i].resize(LIBMESH_NAME_LENGTH+1);
           blobs[i].name = blob_names[i].data();
         }
 
@@ -1108,7 +1120,7 @@ void ExodusII_IO_Helper::read_bex_cv_blocks()
 
       int n_blob_vars;
       exII::ex_get_variable_param(ex_id, exII::EX_BLOB, &n_blob_vars);
-      std::vector<char> var_name (MAX_STR_LENGTH + 1);
+      std::vector<char> var_name (LIBMESH_NAME_LENGTH + 1);
       for (auto v_id : make_range(1,n_blob_vars+1))
         {
           ex_err = exII::ex_get_variable_name(ex_id, exII::EX_BLOB, v_id, var_name.data());
@@ -1157,6 +1169,7 @@ void ExodusII_IO_Helper::print_nodes(std::ostream & out_stream)
 
 void ExodusII_IO_Helper::read_block_info()
 {
+
   if (num_elem_blk)
     {
       // Read all element block IDs.
@@ -1168,7 +1181,7 @@ void ExodusII_IO_Helper::read_block_info()
       EX_CHECK_ERR(ex_err, "Error getting block IDs.");
       message("All block IDs retrieved successfully.");
 
-      char name_buffer[MAX_STR_LENGTH+1];
+      char name_buffer[LIBMESH_NAME_LENGTH+1];
       for (int i=0; i<num_elem_blk; ++i)
         {
           ex_err = exII::ex_get_name(ex_id, exII::EX_ELEM_BLOCK,
@@ -1191,7 +1204,7 @@ void ExodusII_IO_Helper::read_block_info()
       message("All edge block IDs retrieved successfully.");
 
       // Read in edge block names
-      char name_buffer[MAX_STR_LENGTH+1];
+      char name_buffer[LIBMESH_NAME_LENGTH+1];
       for (int i=0; i<num_edge_blk; ++i)
         {
           ex_err = exII::ex_get_name(ex_id, exII::EX_EDGE_BLOCK,
@@ -1643,7 +1656,7 @@ void ExodusII_IO_Helper::read_sideset_info()
       id_list.resize   (num_elem_all_sidesets);
     }
 
-  char name_buffer[MAX_STR_LENGTH+1];
+  char name_buffer[LIBMESH_NAME_LENGTH+1];
   for (int i=0; i<num_side_sets; ++i)
     {
       ex_err = exII::ex_get_name(ex_id, exII::EX_SIDE_SET,
@@ -1671,7 +1684,7 @@ void ExodusII_IO_Helper::read_nodeset_info()
       num_node_df_per_set.resize(num_node_sets);
     }
 
-  char name_buffer[MAX_STR_LENGTH+1];
+  char name_buffer[LIBMESH_NAME_LENGTH+1];
   for (int i=0; i<num_node_sets; ++i)
     {
       ex_err = exII::ex_get_name(ex_id, exII::EX_NODE_SET,
@@ -1711,7 +1724,7 @@ void ExodusII_IO_Helper::read_elemset_info()
       // libMesh::out << "num_elem_all_elemsets = " << num_elem_all_elemsets << std::endl;
     }
 
-  char name_buffer[MAX_STR_LENGTH+1];
+  char name_buffer[LIBMESH_NAME_LENGTH+1];
   for (int i=0; i<num_elem_sets; ++i)
     {
       ex_err = exII::ex_get_name(ex_id, exII::EX_ELEM_SET,
@@ -1871,7 +1884,7 @@ void ExodusII_IO_Helper::read_all_nodesets()
   EX_CHECK_ERR(ex_err, "Error reading concatenated nodesets");
 
   // Read the nodeset names from file!
-  char name_buffer[MAX_STR_LENGTH+1];
+  char name_buffer[LIBMESH_NAME_LENGTH+1];
   for (int i=0; i<num_node_sets; ++i)
     {
       ex_err = exII::ex_get_name
@@ -2045,7 +2058,7 @@ void ExodusII_IO_Helper::read_var_names_impl(const char * var_type,
     return;
 
   // Second read the actual names and convert them into a format we can use
-  NamesData names_table(count, MAX_STR_LENGTH);
+  NamesData names_table(count, LIBMESH_NAME_LENGTH);
 
   ex_err = exII::ex_get_var_names(ex_id,
                                   var_type,
@@ -2131,15 +2144,15 @@ ExodusII_IO_Helper::write_var_names_impl(const char * var_type,
 
   if (count > 0)
     {
-      NamesData names_table(count, MAX_STR_LENGTH);
+      NamesData names_table(count, LIBMESH_NAME_LENGTH);
 
       // Store the input names in the format required by Exodus.
       for (int i=0; i != count; ++i)
         {
-          if(names[i].length() > MAX_STR_LENGTH)
+          if(names[i].length() > LIBMESH_NAME_LENGTH)
             libmesh_warning(
               "*** Warning, Exodus variable name \""
-              << names[i] << "\" too long (max " << MAX_STR_LENGTH
+              << names[i] << "\" too long (max " << LIBMESH_NAME_LENGTH
               << " characters). Name will be truncated. ");
           names_table.push_back_entry(names[i]);
         }
@@ -2665,13 +2678,13 @@ void ExodusII_IO_Helper::write_elements(const MeshBase & mesh, bool use_disconti
   std::vector<int> num_edges_per_elem_vec;
   std::vector<int> num_faces_per_elem_vec;
   std::vector<int> num_attr_vec;
-  NamesData elem_type_table(num_elem_blk, MAX_STR_LENGTH);
+  NamesData elem_type_table(num_elem_blk, LIBMESH_NAME_LENGTH);
 
   // Note: It appears that there is a bug in exodusII::ex_put_name where
   // the index returned from the ex_id_lkup is erroneously used.  For now
   // the work around is to use the alternative function ex_put_names, but
   // this function requires a char ** data structure.
-  NamesData names_table(num_elem_blk, MAX_STR_LENGTH);
+  NamesData names_table(num_elem_blk, LIBMESH_NAME_LENGTH);
 
   num_elem = 0;
 
@@ -2850,14 +2863,14 @@ void ExodusII_IO_Helper::write_elements(const MeshBase & mesh, bool use_disconti
   // be passed to exII::ex_put_concat_all_blocks() at the same time as the
   // information about elem blocks.
   std::vector<int> edge_blk_id;
-  NamesData edge_type_table(num_edge_blk, MAX_STR_LENGTH);
+  NamesData edge_type_table(num_edge_blk, LIBMESH_NAME_LENGTH);
   std::vector<int> num_edge_this_blk_vec;
   std::vector<int> num_nodes_per_edge_vec;
   std::vector<int> num_attr_edge_vec;
 
   // We also build a data structure of edge block names which can
   // later be passed to exII::ex_put_names().
-  NamesData edge_block_names_table(num_edge_blk, MAX_STR_LENGTH);
+  NamesData edge_block_names_table(num_edge_blk, LIBMESH_NAME_LENGTH);
 
   // Note: We are going to use the edge **boundary** ids as **block** ids.
   for (const auto & pr : edge_id_to_conn)
@@ -3195,7 +3208,7 @@ void ExodusII_IO_Helper::write_sidesets(const MeshBase & mesh)
   // Write out the sideset names, but only if there is something to write
   if (side_boundary_ids.size() > 0)
     {
-      NamesData names_table(side_boundary_ids.size(), MAX_STR_LENGTH);
+      NamesData names_table(side_boundary_ids.size(), LIBMESH_NAME_LENGTH);
 
       std::vector<exII::ex_set> sets(side_boundary_ids.size());
 
@@ -3275,7 +3288,7 @@ void ExodusII_IO_Helper::write_nodesets(const MeshBase & mesh)
   // Write out the nodeset names, but only if there is something to write
   if (node_boundary_ids.size() > 0)
     {
-      NamesData names_table(node_boundary_ids.size(), MAX_STR_LENGTH);
+      NamesData names_table(node_boundary_ids.size(), LIBMESH_NAME_LENGTH);
 
       // Vectors to be filled and passed to exII::ex_put_concat_sets()
       // Use existing class members and avoid variable shadowing.
@@ -3480,7 +3493,7 @@ void ExodusII_IO_Helper::check_existing_vars(ExodusVarType type,
                [](const std::string & a,
                   const std::string & b) -> bool
                {
-                 return a.compare(/*pos=*/0, /*len=*/MAX_STR_LENGTH, b) == 0;
+                 return a.compare(/*pos=*/0, /*len=*/LIBMESH_NAME_LENGTH, b) == 0;
                });
 
   if (!match)
@@ -3530,7 +3543,7 @@ ExodusII_IO_Helper::write_elemsets(const MeshBase & mesh)
     return;
 
   // TODO: Add support for named elemsets
-  // NamesData names_table(elemsets.size(), MAX_STR_LENGTH);
+  // NamesData names_table(elemsets.size(), LIBMESH_NAME_LENGTH);
 
   // We only need to write elemsets if the Mesh has an extra elem
   // integer called "elemset_code" defined on it.
