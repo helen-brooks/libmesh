@@ -41,6 +41,7 @@ AC_DEFUN([CONFIGURE_EXODUS],
                       dnl where it might be installed...
                       EXODUS_INCLUDE="-I\$(top_srcdir)/contrib/exodusii/$exodusversion/include"
                       AC_DEFINE(HAVE_EXODUS_API, 1, [Flag indicating whether the library will be compiled with Exodus support])
+                      AC_DEFINE(HAVE_EX_LONG_NAMES, 1, [Flag indicating whether the library will be compiled with long names in Exodus])
                       AC_DEFINE_UNQUOTED(DETECTED_EXODUS_VERSION_MAJOR, [5],
                                         [Exodus's major version number, as detected by exodus.m4])
                       AC_DEFINE_UNQUOTED(DETECTED_EXODUS_VERSION_MINOR, [9],

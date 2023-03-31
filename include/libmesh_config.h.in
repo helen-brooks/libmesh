@@ -376,6 +376,9 @@
 /* Flag indicating whether the library will be compiled with Exodus support */
 #undef HAVE_EXODUS_API
 
+/* Flag indicating whether the library will be compiled with long names */
+#undef HAVE_EX_LONG_NAMES
+
 /* Flag indicating whether an external Boost was found */
 #undef HAVE_EXTERNAL_BOOST
 

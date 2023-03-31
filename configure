@@ -1282,6 +1282,7 @@ with_hdf5
 enable_netcdf
 enable_exodus
 enable_exodus_fortran
+enable_exodus_long_names
 enable_nemesis
 enable_libHilbert
 enable_fparser
@@ -55867,7 +55868,7 @@ esac
 
 
 
-   if test x$enableexodusfortran = xyes; then
+if test x$enableexodusfortran = xyes; then
   EXODUS_FORTRAN_API_TRUE=
   EXODUS_FORTRAN_API_FALSE='#'
 else
@@ -55913,8 +55914,26 @@ else
 fi
 
   # Check whether --enable-exodus-long-names was given.
-if test "${enable-exodus-long-names+set}" = set; then :
-  $as_echo "#define LIBMESH_HAVE_EX_LONG_NAMES 1" >>confdefs.h
+if test "${enable_exodus_long_names+set}" = set; then :
+  enableval=$enable_exodus_long_names; case "${enableval}" in #(
+  yes) :
+    enableexoduslongnames=yes ;; #(
+  no) :
+    enableexoduslongnames=no ;; #(
+  *) :
+    as_fn_error $? "bad value ${enableval} for --enable-exodus-long-names" "$LINENO" 5 ;;
+esac
+else
+  enableexoduslongnames=no
+fi
+
+if test "x$enableexoduslongnames" = xyes; then :
+  $as_echo "#define HAVE_EX_LONG_NAMES 1" >>confdefs.h
+#  HAVE_EX_LONG_NAMES_TRUE=
+#  HAVE_EX_LONG_NAMES_FALSE='#'
+#else
+#  HAVE_EX_LONG_NAMES_TRUE='#'
+#  HAVE_EX_LONG_NAMES_FALSE=
 fi
 
 # -------------------------------------------------------------
@@ -57259,9 +57278,6 @@ _ACEOF
 
 
 $as_echo "#define BUILD_DATE __DATE__ \" \" __TIME__" >>confdefs.h
-
-
-
 
 
 #AC_SUBST(BUILD_DATE)
@@ -61472,6 +61488,7 @@ if test "x$enableoptional" = "xyes"; then :
         $as_echo "  exodus........................... : $enableexodus"
         if test "x$exodusversion" != "xno"; then :
   $as_echo "     version....................... : $exodusversion"
+  $as_echo "     longnames..................... : $enableexoduslongnames"
 fi
         $as_echo "  fparser.......................... : $enablefparser"
         if test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"; then :
