@@ -699,6 +699,8 @@ LIBMESH_ENABLE_EXODUS_V522_FALSE
 LIBMESH_ENABLE_EXODUS_V522_TRUE
 LIBMESH_ENABLE_EXODUS_V509_FALSE
 LIBMESH_ENABLE_EXODUS_V509_TRUE
+LIBMESH_HAVE_EX_LONG_NAMES_FALSE
+LIBMESH_HAVE_EX_LONG_NAMES_TRUE
 LIBMESH_ENABLE_EXODUS_FALSE
 LIBMESH_ENABLE_EXODUS_TRUE
 EXODUS_FORTRAN_API_FALSE
@@ -1116,6 +1118,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -1281,8 +1284,8 @@ enable_hdf5_required
 with_hdf5
 enable_netcdf
 enable_exodus
-enable_exodus_fortran
 enable_exodus_long_names
+enable_exodus_fortran
 enable_nemesis
 enable_libHilbert
 enable_fparser
@@ -1367,6 +1370,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
@@ -1619,6 +1623,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1756,7 +1769,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1909,6 +1922,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -2079,6 +2093,8 @@ Optional Features:
   --enable-hdf5-required  Error if HDF5 is not detected by configure
   --disable-netcdf        build without netCDF binary I/O
   --disable-exodus        build without ExodusII API support
+  --enable-exodus-long-names
+                          build with ExodusII long name support
   --enable-exodus-fortran build with ExodusII Fortran API support
   --disable-nemesis       build without NemesisII API support
   --disable-libHilbert    build without Chris Hamilton's libHilbert
@@ -55767,6 +55783,20 @@ else
 fi
 fi
 
+
+  # Check whether --enable-exodus_long_names was given.
+if test "${enable_exodus_long_names+set}" = set; then :
+  enableval=$enable_exodus_long_names; case "${enableval}" in #(
+  yes) :
+    enableexoduslongnames=yes ;; #(
+  no) :
+    enableexoduslongnames=no ;; #(
+  *) :
+    as_fn_error $? "bad value ${enableval} for --enable-exodus" "$LINENO" 5 ;;
+esac
+fi
+
+
     if test "x$enableexodus" = "xno"; then :
   exodusversion=no
 fi
@@ -55779,6 +55809,15 @@ fi
 $as_echo "defining -DNOT_NETCDF4 for our Exodus build" >&6; }
 
 fi
+
+  if test "x$enableexoduslongnames" = "xyes"; then :
+
+
+$as_echo "#define HAVE_EX_LONG_NAMES 1" >>confdefs.h
+
+
+fi
+
 
   case "${exodusversion}" in #(
   "v5.09") :
@@ -55868,7 +55907,7 @@ esac
 
 
 
-if test x$enableexodusfortran = xyes; then
+   if test x$enableexodusfortran = xyes; then
   EXODUS_FORTRAN_API_TRUE=
   EXODUS_FORTRAN_API_FALSE='#'
 else
@@ -55887,6 +55926,14 @@ fi
 else
   LIBMESH_ENABLE_EXODUS_TRUE='#'
   LIBMESH_ENABLE_EXODUS_FALSE=
+fi
+
+ if test x$enableexoduslongnames  = xyes; then
+  LIBMESH_HAVE_EX_LONG_NAMES_TRUE=
+  LIBMESH_HAVE_EX_LONG_NAMES_FALSE='#'
+else
+  LIBMESH_HAVE_EX_LONG_NAMES_TRUE='#'
+  LIBMESH_HAVE_EX_LONG_NAMES_FALSE=
 fi
 
  if test x$exodusversion = xv5.09; then
@@ -55913,28 +55960,6 @@ else
   LIBMESH_ENABLE_EXODUS_V811_FALSE=
 fi
 
-  # Check whether --enable-exodus-long-names was given.
-if test "${enable_exodus_long_names+set}" = set; then :
-  enableval=$enable_exodus_long_names; case "${enableval}" in #(
-  yes) :
-    enableexoduslongnames=yes ;; #(
-  no) :
-    enableexoduslongnames=no ;; #(
-  *) :
-    as_fn_error $? "bad value ${enableval} for --enable-exodus-long-names" "$LINENO" 5 ;;
-esac
-else
-  enableexoduslongnames=no
-fi
-
-if test "x$enableexoduslongnames" = xyes; then :
-  $as_echo "#define HAVE_EX_LONG_NAMES 1" >>confdefs.h
-#  HAVE_EX_LONG_NAMES_TRUE=
-#  HAVE_EX_LONG_NAMES_FALSE='#'
-#else
-#  HAVE_EX_LONG_NAMES_TRUE='#'
-#  HAVE_EX_LONG_NAMES_FALSE=
-fi
 
 # -------------------------------------------------------------
 # Nemesis -- enabled by default (it is distributed in contrib)
@@ -57280,6 +57305,9 @@ _ACEOF
 $as_echo "#define BUILD_DATE __DATE__ \" \" __TIME__" >>confdefs.h
 
 
+
+
+
 #AC_SUBST(BUILD_DATE)
 
 
@@ -58107,6 +58135,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LIBMESH_ENABLE_EXODUS_TRUE}" && test -z "${LIBMESH_ENABLE_EXODUS_FALSE}"; then
   as_fn_error $? "conditional \"LIBMESH_ENABLE_EXODUS\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LIBMESH_HAVE_EX_LONG_NAMES_TRUE}" && test -z "${LIBMESH_HAVE_EX_LONG_NAMES_FALSE}"; then
+  as_fn_error $? "conditional \"LIBMESH_HAVE_EX_LONG_NAMES\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LIBMESH_ENABLE_EXODUS_V509_TRUE}" && test -z "${LIBMESH_ENABLE_EXODUS_V509_FALSE}"; then
@@ -61488,7 +61520,7 @@ if test "x$enableoptional" = "xyes"; then :
         $as_echo "  exodus........................... : $enableexodus"
         if test "x$exodusversion" != "xno"; then :
   $as_echo "     version....................... : $exodusversion"
-  $as_echo "     longnames..................... : $enableexoduslongnames"
+              $as_echo "     longnames..................... : $enableexoduslongnames"
 fi
         $as_echo "  fparser.......................... : $enablefparser"
         if test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"; then :

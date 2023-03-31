@@ -748,6 +748,7 @@ AS_IF([test $enableexodus = yes],
       [libmesh_contrib_INCLUDES="$EXODUS_INCLUDE $libmesh_contrib_INCLUDES"])
 
 AM_CONDITIONAL(LIBMESH_ENABLE_EXODUS,      test x$enableexodus  = xyes)
+AM_CONDITIONAL(LIBMESH_HAVE_EX_LONG_NAMES,      test x$enableexoduslongnames  = xyes)
 AM_CONDITIONAL(LIBMESH_ENABLE_EXODUS_V509, test x$exodusversion = xv5.09)
 AM_CONDITIONAL(LIBMESH_ENABLE_EXODUS_V522, test x$exodusversion = xv5.22)
 AM_CONDITIONAL(LIBMESH_ENABLE_EXODUS_V811, test x$exodusversion = xv8.11)

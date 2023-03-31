@@ -108,7 +108,8 @@ AS_IF([test "x$enableoptional" = "xyes"],
         AS_ECHO(["  eigen............................ : $enableeigen"])
         AS_ECHO(["  exodus........................... : $enableexodus"])
         AS_IF([test "x$exodusversion" != "xno"],
-              [AS_ECHO(["     version....................... : $exodusversion"])])
+              [AS_ECHO(["     version....................... : $exodusversion"])]
+              [AS_ECHO(["     longnames..................... : $enableexoduslongnames"])])
         AS_ECHO(["  fparser.......................... : $enablefparser"])
         AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"],
               [AS_ECHO(["     build from version............ : release"])])
